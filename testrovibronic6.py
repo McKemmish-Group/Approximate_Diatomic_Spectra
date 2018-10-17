@@ -1,4 +1,4 @@
-# Function for calculating rotational, vibrational and electronic spectra 
+# Function for calculating rotational, vibrational and electronic spectra
 # Date: 31/7/2018
 
 # Main Function Rovibronic
@@ -18,12 +18,12 @@ def E_evr(ID):
     # Call function to get variables
     Te, we, wexe, Be, De, alpha_e, beta_e, gamma_e, Total_Electronic_Spin, Symbol, Reflection_Symmetry = getVar(ID, max_E)
     print (Te, we, wexe, Be, De, alpha_e, beta_e, gamma_e, Total_Electronic_Spin, Symbol, Reflection_Symmetry)
-
+    
     # Calculate Energy Levels
     EN = EnergyLevels(ID, max_E, max_v, max_J, Te, we, wexe, Be, De, alpha_e, beta_e, gamma_e)
-
+    
     # Calculate Transition Energies & Intensities
-    dE, IE = TransitionElec(ID, max_E, max_v, max_J, EN, kT, Threshold, Total_Electronic_Spin, Symbol, Reflection_Symmetry)
+    dE, IE = TransitionElec(ID, we, Be, max_E, max_v, max_J, EN, kT, Threshold, Total_Electronic_Spin, Symbol, Reflection_Symmetry)
     
     # Stem plot spectra of Transition Energy vs Intensity
     plotSpectra(ID, max_E, max_J, max_v, dE, IE)
@@ -47,7 +47,7 @@ def countInput(ID):
 
 # Function to Grab Variables
 def getVar(ID, max_E):
-
+    
     x = open('{0}input.txt'.format(ID), 'r')    # Open file for reading input
     f = x.readline()
     
@@ -62,7 +62,7 @@ def getVar(ID, max_E):
     Total_Electronic_Spin = [0]*max_E
     Symbol = [""]*max_E
     Reflection_Symmetry = [""]*max_E
-
+    
     # Read and Split input variables (Diatomic Constants!!!)
     i = 0
     while f:
@@ -82,7 +82,7 @@ def getVar(ID, max_E):
         
         i = i+1
         f = x.readline()
-
+    
     x.close()
     return Te, we, wexe, Be, De, alpha_e, beta_e, gamma_e, Total_Electronic_Spin, Symbol, Reflection_Symmetry
 
@@ -90,7 +90,7 @@ def getVar(ID, max_E):
 # Function to Calculate Energy Levels
 def EnergyLevels(ID, max_E, max_v, max_J, Te, we, wexe, Be, De, alpha_e, beta_e, gamma_e):
     y = open('{0}outputLEVELS.txt'.format(ID), 'w')
-
+    
     Total = max_J * max_v * max_E
     EN = [0] * Total
     
@@ -103,7 +103,7 @@ def EnergyLevels(ID, max_E, max_v, max_J, Te, we, wexe, Be, De, alpha_e, beta_e,
             for J in range(0, max_J):
                 En = Te[E] + we[E]*(v+1/2) - wexe[E]*((v+1/2)**2) + Be[E]*J*(J+1) - De[E]*(J**2*(J+1)**2) - alpha_e[E]*J*(J+1)*(v+1/2) - beta_e[E]*J**2*(J+1)**2*(v+1/2) + gamma_e[E]*J*(J+1)*(v+1/2)**2
                 y.write('{0}\t{1}\t{2}\t{3}\n'.format(E,v,J,En))
-                    
+                
                 # Store vector of En
                 EN[E*max_v*max_J+v*max_J+J] = En
 
@@ -111,7 +111,7 @@ def EnergyLevels(ID, max_E, max_v, max_J, Te, we, wexe, Be, De, alpha_e, beta_e,
     return EN
 
 # Function for Electronic Transitions
-def TransitionElec(ID, max_E, max_v, max_J, EN, kT, Threshold, Total_Electronic_Spin, Symbol, Reflection_Symmetry):
+def TransitionElec(ID, we, Be, max_E, max_v, max_J, EN, kT, Threshold, Total_Electronic_Spin, Symbol, Reflection_Symmetry):
     import math # For use of exponential function in calculating intensities
     z = open('{0}outputTRANSITIONS.txt'.format(ID),'w')
     
@@ -129,7 +129,7 @@ def TransitionElec(ID, max_E, max_v, max_J, EN, kT, Threshold, Total_Electronic_
             if (ElecFactor != 0):
                 for v_Lower in range(0,max_v):
                     for v_Upper in range(v_Lower,max_v):
-                        FCF = FCCondition
+                        FCF = FCCondition(we, Be, E_Upper, E_Lower, v_Upper)
                         for J in range(0,max_J):
                             IEcheck = FCF*ElecFactor*(2*J+1)*math.exp(-EN[E_Lower*Tot_Jv+v_Lower*max_J+J]/kT)
                             if (IEcheck >= Threshold):
@@ -207,24 +207,22 @@ def SymmetryCondition(E_Upper, E_Lower, Total_Electronic_Spin, Symbol, Reflectio
     # Check dS = 0, if not change check back to 0
     if (Total_Electronic_Spin[E_Upper] != Total_Electronic_Spin[E_Lower]):
         check = 0
-
+    
     return check
 
 # Function to Estimate Franck-Condon Factors (FCF) by Vertical Transition
-def FCCondition(E_Upper, E_Lower, Be, we, v):
-    #Constants
-    PLANCK = 6.626*10^(-34) #J.s
-    SPEED_L = 2.998*10^(10) #cm.s^-1
+def FCCondition(we, Be, E_Upper, E_Lower, v_Upper):
+    import math # For use of exponential function in calculating intensities
     
-    v_vert = we[E_Upper]/(2)*(1/((Be[E_Lower])^(1/2)) - 1/((Be[E_Upper])^(1/2)))^2 - 1/2
-    FCF = math.exp(-(v-v_vert)^2)
+    v_vert = (we[E_Upper]/2)*(1/(math.sqrt(Be[E_Lower])) - 1/(math.sqrt(Be[E_Upper])))**2 - 1/2
+    FCF = math.exp(-(v_Upper-v_vert)**2)
     
     return FCF
 
 # Function to Plot Stem Spectra
 def plotSpectra(ID, max_E, max_J, max_v, dE, IE):
     import matplotlib.pyplot as plt # For plotting spectra
-
+    
     # Matplotlib - Graphing
     plt.title('{} Spectra'.format(ID))
     plt.xlabel('Transition Frequency (cm\u207B\u00B9)')
