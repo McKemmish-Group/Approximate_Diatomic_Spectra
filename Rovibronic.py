@@ -226,16 +226,15 @@ def plotSpectra(ID, max_E, max_J, max_v, dE, IE):
     plt.ylabel('Intensity')
     plt.stem(dE, IE, markerfmt=" ", basefmt=" ")
     
-    SMALL_SIZE = 8
-    MEDIUM_SIZE = 10
-    BIGGER_SIZE = 12
+    MEDIUM_SIZE = 14
+    BIGGER_SIZE = 18
     
-    plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
-    plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
-    plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
-    plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-    plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+    plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
+    plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
+    plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=BIGGER_SIZE) 
     #plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
     
     plt.savefig('{0}outputSPECTRA_E{1}_v{2}_J{3}.png'.format(ID, max_E, max_v, max_J))
