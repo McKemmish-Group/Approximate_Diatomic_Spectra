@@ -221,10 +221,23 @@ def plotSpectra(ID, max_E, max_J, max_v, dE, IE):
     import matplotlib.pyplot as plt # For plotting spectra
     
     # Matplotlib - Graphing
-    plt.title('{} Spectra'.format(ID))
+    #plt.title('{} Spectra'.format(ID))
     plt.xlabel('Transition Frequency (cm\u207B\u00B9)')
     plt.ylabel('Intensity')
     plt.stem(dE, IE, markerfmt=" ", basefmt=" ")
+    
+    SMALL_SIZE = 8
+    MEDIUM_SIZE = 10
+    BIGGER_SIZE = 12
+    
+    plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+    plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+    plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+    #plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+    
     plt.savefig('{0}outputSPECTRA_E{1}_v{2}_J{3}.png'.format(ID, max_E, max_v, max_J))
     plt.show()
     
